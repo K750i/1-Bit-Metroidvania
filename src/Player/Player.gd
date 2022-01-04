@@ -4,14 +4,19 @@ export var FRICTION := 0.25
 export var GRAVITY := 800
 export var SPEED := Vector2(100, 200)
 
+onready var animation_player: AnimationPlayer = $SpriteAnimation
+onready var sprite: Sprite = $Sprite
+
 var motion := Vector2.ZERO
 
+	
 
 func _physics_process(delta: float) -> void:
 	var input_vector := get_input_vector()
 	apply_horizontal_force(input_vector)
 	apply_gravity()
 	jump(input_vector)
+	play_animation(input_vector)
 	move()
 
 
@@ -26,7 +31,7 @@ func apply_horizontal_force(input_vector: Vector2) -> void:
 	if input_vector.x != 0:
 		motion.x = input_vector.x * SPEED.x
 	else:
-		motion.x = lerp(motion.x, 0, FRICTION)		
+		motion.x = lerp(motion.x, 0, FRICTION)
 
 
 func apply_gravity() -> void:
@@ -43,8 +48,17 @@ func move() -> void:
 	motion = move_and_slide(motion, Vector2.UP)
 	
 
-
-
+func play_animation(input_vector: Vector2) -> void:
+	if input_vector.x != 0:
+		sprite.scale.x = sign(input_vector.x)
+		animation_player.play("run")
+	else:
+		animation_player.play("idle")
+	
+	# overrides run & idle if in the air
+	if not is_on_floor():
+		animation_player.play("jump")
+		
 
 
 
