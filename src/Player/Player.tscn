@@ -91,3 +91,5 @@ anims/RESET = SubResource( 2 )
 anims/idle = SubResource( 3 )
 anims/jump = SubResource( 5 )
 anims/run = SubResource( 4 )
+
+[node name="CameraFollow" type="RemoteTransform2D" parent="."]

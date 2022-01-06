@@ -17,7 +17,7 @@ func _physics_process(delta: float) -> void:
 	apply_gravity()
 	jump(input_vector)
 	play_animation(input_vector)
-	move()
+	move(input_vector)
 
 
 func get_input_vector() -> Vector2:
@@ -44,8 +44,9 @@ func jump(input_vector: Vector2) -> void:
 	if Input.is_action_just_released("up") and motion.y < 0.0:
 		motion.y = 0.0
 
-func move() -> void:
-	motion = move_and_slide(motion, Vector2.UP)
+func move(input_vector: Vector2) -> void:
+	var snap_vector := Vector2.DOWN * 10.0 if input_vector.y == 0 else Vector2.ZERO
+	motion.y = move_and_slide_with_snap(motion, snap_vector, Vector2.UP, true, 4, PI/3).y
 	
 
 func play_animation(input_vector: Vector2) -> void:
