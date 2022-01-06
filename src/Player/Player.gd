@@ -8,7 +8,7 @@ onready var animation_player: AnimationPlayer = $SpriteAnimation
 onready var sprite: Sprite = $Sprite
 
 var motion := Vector2.ZERO
-
+var coyote_jump_enabled := false
 	
 
 func _physics_process(delta: float) -> void:
@@ -21,10 +21,22 @@ func _physics_process(delta: float) -> void:
 
 
 func get_input_vector() -> Vector2:
-	return Vector2(
-		Input.get_action_strength("right") - Input.get_action_strength("left"),
-		-Input.get_action_strength("up") if Input.is_action_just_pressed("up") and is_on_floor() else 0.0
-	)
+	var out: Vector2
+	
+	out.x = Input.get_action_strength("right") - Input.get_action_strength("left")
+
+	if is_on_floor():
+		coyote_jump_enabled = true
+		
+	if Input.is_action_just_pressed("up") and coyote_jump_enabled:
+		out.y = -Input.get_action_strength("up")
+	else:
+		out.y = 0.0
+	
+	if not is_on_floor():
+		reset_coyote_time()
+		
+	return out
 
 
 func apply_horizontal_force(input_vector: Vector2) -> void:
@@ -43,6 +55,12 @@ func jump(input_vector: Vector2) -> void:
 		motion.y = input_vector.y * SPEED.y
 	if Input.is_action_just_released("up") and motion.y < 0.0:
 		motion.y = 0.0
+
+
+func reset_coyote_time() -> void:
+	yield(get_tree().create_timer(0.1), "timeout")
+	coyote_jump_enabled = false
+
 
 func move(input_vector: Vector2) -> void:
 	var snap_vector := Vector2.DOWN * 10.0 if input_vector.y == 0 else Vector2.ZERO
