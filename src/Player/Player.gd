@@ -9,7 +9,8 @@ onready var sprite: Sprite = $Sprite
 
 var motion := Vector2.ZERO
 var coyote_jump_enabled := false
-	
+var jump_pressed := false	# to allow jump when player is slightly off the ground
+
 
 func _physics_process(delta: float) -> void:
 	var input_vector := get_input_vector()
@@ -25,14 +26,19 @@ func get_input_vector() -> Vector2:
 	
 	out.x = Input.get_action_strength("right") - Input.get_action_strength("left")
 
-	if is_on_floor():
-		coyote_jump_enabled = true
-		
-	if Input.is_action_just_pressed("up") and coyote_jump_enabled:
-		out.y = -Input.get_action_strength("up")
+	if Input.is_action_just_pressed("up"):
+		jump_pressed = true
+		reset_jump_time()
+		if coyote_jump_enabled:
+			out.y = -Input.get_action_strength("up")
 	else:
 		out.y = 0.0
-	
+		
+	if is_on_floor():
+		coyote_jump_enabled = true
+		if jump_pressed:
+			out.y = -Input.get_action_strength("up")
+			
 	if not is_on_floor():
 		reset_coyote_time()
 		
@@ -60,6 +66,11 @@ func jump(input_vector: Vector2) -> void:
 func reset_coyote_time() -> void:
 	yield(get_tree().create_timer(0.1), "timeout")
 	coyote_jump_enabled = false
+
+
+func reset_jump_time() -> void:
+	yield(get_tree().create_timer(0.1), "timeout")
+	jump_pressed = false
 
 
 func move(input_vector: Vector2) -> void:
