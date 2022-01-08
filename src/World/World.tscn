@@ -11,7 +11,7 @@ script = ExtResource( 3 )
 position = Vector2( 66, 102 )
 SPEED = Vector2( 100, 250 )
 
-[node name="CameraFollow" parent="Player" index="3"]
+[node name="CameraFollow" parent="Player" index="4"]
 position = Vector2( 0, -8 )
 remote_path = NodePath("../../Camera")
 update_rotation = false

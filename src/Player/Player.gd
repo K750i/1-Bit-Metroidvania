@@ -1,28 +1,43 @@
 extends KinematicBody2D
 
+const DustEffect: PackedScene = preload("res://src/Effects/DustEffect.tscn")
+const PlayerBullet: PackedScene = preload("res://src/Player/PlayerBullet.tscn")
+
 export var FRICTION := 0.25
 export var GRAVITY := 800
 export var SPEED := Vector2(100, 200)
+export var BULLET_SPEED := 250
 
 onready var animation_player: AnimationPlayer = $SpriteAnimation
 onready var sprite: Sprite = $Sprite
+onready var gun: Node2D = $PlayerGun
+onready var gun_muzzle: Position2D = $PlayerGun/Muzzle
 
 var motion := Vector2.ZERO
 var coyote_jump_enabled := false
 var jump_pressed := false	# to allow jump when player is slightly off the ground
+var can_fire := true
 
-
+func _ready() -> void:
+	animation_player.playback_speed = 0.6
+	
+	
 func _physics_process(delta: float) -> void:
 	var input_vector := get_input_vector()
 	apply_horizontal_force(input_vector)
-	apply_gravity()
+	apply_gravity(delta)
 	jump(input_vector)
 	play_animation(input_vector)
 	move(input_vector)
-
+	
+	if Input.is_action_pressed("fire") and can_fire:
+		fire_bullet()
+		can_fire = false
+		reset_fire_enabled()
+		
 
 func get_input_vector() -> Vector2:
-	var out: Vector2
+	var out := Vector2.ZERO
 	
 	out.x = Input.get_action_strength("right") - Input.get_action_strength("left")
 
@@ -52,8 +67,8 @@ func apply_horizontal_force(input_vector: Vector2) -> void:
 		motion.x = lerp(motion.x, 0, FRICTION)
 
 
-func apply_gravity() -> void:
-	motion.y += GRAVITY * get_physics_process_delta_time()
+func apply_gravity(delta: float) -> void:
+	motion.y += GRAVITY * delta
 
 
 func jump(input_vector: Vector2) -> void:
@@ -79,9 +94,12 @@ func move(input_vector: Vector2) -> void:
 	
 
 func play_animation(input_vector: Vector2) -> void:
+	sprite.scale.x = sign(get_local_mouse_position().x)
 	if input_vector.x != 0:
-		sprite.scale.x = sign(input_vector.x)
-		animation_player.play("run")
+		if input_vector.x * sprite.scale.x > 0:
+			animation_player.play("run")
+		else:
+			animation_player.play_backwards("run")		
 	else:
 		animation_player.play("idle")
 	
@@ -90,17 +108,19 @@ func play_animation(input_vector: Vector2) -> void:
 		animation_player.play("jump")
 		
 
+func create_dust_effect() -> void:
+	Utils.instance_scene_on_main(DustEffect, global_position)
 
 
+func fire_bullet() -> void:
+	var bullet := Utils.instance_scene_on_main(PlayerBullet, gun_muzzle.global_position) as Node2D
+	bullet.velocity = Vector2.RIGHT.rotated(gun.rotation) * BULLET_SPEED
+	bullet.rotation = bullet.velocity.angle()
 
 
-
-
-
-
-
-
-
+func reset_fire_enabled() -> void:
+	yield(get_tree().create_timer(0.25), "timeout")
+	can_fire = true
 
 
 

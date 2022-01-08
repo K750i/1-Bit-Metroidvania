@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Assets/Player.png" type="Texture" id=1]
 [ext_resource path="res://src/Player/Player.gd" type="Script" id=2]
+[ext_resource path="res://src/Player/PlayerGun.tscn" type="PackedScene" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 4.5, 7.5 )
@@ -72,9 +73,29 @@ tracks/0/keys = {
 "update": 1,
 "values": [ 4, 5, 6, 7, 8, 9 ]
 }
+tracks/1/type = "method"
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.15 ),
+"transitions": PoolRealArray( 1, 1 ),
+"values": [ {
+"args": [  ],
+"method": "create_dust_effect"
+}, {
+"args": [  ],
+"method": "create_dust_effect"
+} ]
+}
 
 [node name="Player" type="KinematicBody2D"]
 script = ExtResource( 2 )
+
+[node name="PlayerGun" parent="." instance=ExtResource( 3 )]
+position = Vector2( 0, -10 )
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( 0, -12 )
@@ -93,3 +114,6 @@ anims/jump = SubResource( 5 )
 anims/run = SubResource( 4 )
 
 [node name="CameraFollow" type="RemoteTransform2D" parent="."]
+
+[node name="GunPivot" type="Position2D" parent="."]
+position = Vector2( 0, -10 )
