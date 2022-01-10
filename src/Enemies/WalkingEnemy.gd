@@ -15,7 +15,7 @@ func _ready() -> void:
 	walking_direction = Direction.LEFT
 	
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	match walking_direction:
 		Direction.LEFT:
 			if not floorLeft.is_colliding() or wallLeft.is_colliding():
