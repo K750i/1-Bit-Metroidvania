@@ -1,6 +1,7 @@
 extends KinematicBody2D
 
 const DustEffect: PackedScene = preload("res://src/Effects/DustEffect.tscn")
+const JumpEffect: PackedScene = preload("res://src/Effects/JumpEffect.tscn")
 const PlayerBullet: PackedScene = preload("res://src/Player/PlayerBullet.tscn")
 
 export var FRICTION := 0.25
@@ -74,6 +75,7 @@ func apply_gravity(delta: float) -> void:
 func jump(input_vector: Vector2) -> void:
 	if input_vector.y < 0.0:
 		motion.y = input_vector.y * SPEED.y
+		Utils.instance_scene_on_main(JumpEffect, position)
 	if Input.is_action_just_released("up") and motion.y < 0.0:
 		motion.y = 0.0
 
