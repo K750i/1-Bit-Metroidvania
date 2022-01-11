@@ -8,6 +8,16 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Resource",
+"class": "PlayerStats",
+"language": "GDScript",
+"path": "res://src/Player/PlayerStats.gd"
+} ]
+_global_script_class_icons={
+"PlayerStats": ""
+}
+
 [application]
 
 config/name="1-Bit Metroidvania"

@@ -8,19 +8,34 @@ export var FRICTION := 0.25
 export var GRAVITY := 800
 export var SPEED := Vector2(100, 200)
 export var BULLET_SPEED := 250
+export var player_stats: Resource
 
 onready var animation_player: AnimationPlayer = $SpriteAnimation
+onready var blink_player: AnimationPlayer = $BlinkAnimation
 onready var sprite: Sprite = $Sprite
-onready var gun: Node2D = $PlayerGun
-onready var gun_muzzle: Position2D = $PlayerGun/Muzzle
+onready var gun: Node2D = $Sprite/PlayerGun
+onready var gun_muzzle: Position2D = $Sprite/PlayerGun/Muzzle
 
 var motion := Vector2.ZERO
 var coyote_jump_enabled := false
 var jump_pressed := false	# to allow jump when player is slightly off the ground
 var can_fire := true
+var invincible := false setget set_invincible
+
 
 func _ready() -> void:
 	animation_player.playback_speed = 0.6
+	player_stats.connect("player_died", self, "_on_died")
+	
+	
+func _on_Hurtbox_hit(damage) -> void:
+	if not invincible:
+		player_stats.health -= damage
+		blink_player.play("blink")
+	
+	
+func _on_died() -> void:
+	queue_free()
 	
 	
 func _physics_process(delta: float) -> void:
@@ -116,13 +131,17 @@ func create_dust_effect() -> void:
 
 func fire_bullet() -> void:
 	var bullet := Utils.instance_scene_on_main(PlayerBullet, gun_muzzle.global_position) as Node2D
-	bullet.velocity = Vector2.RIGHT.rotated(gun.rotation) * BULLET_SPEED
+	bullet.velocity = Vector2.RIGHT.rotated(gun.global_rotation) * BULLET_SPEED
 	bullet.rotation = bullet.velocity.angle()
 
 
 func reset_fire_enabled() -> void:
 	yield(get_tree().create_timer(0.25), "timeout")
 	can_fire = true
+
+
+func set_invincible(value: bool) -> void:
+	invincible = value
 
 
 

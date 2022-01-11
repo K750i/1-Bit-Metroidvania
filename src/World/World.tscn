@@ -90,3 +90,4 @@ position = Vector2( 80, 176 )
 
 [editable path="MovingPlatforms/MovingPlatform2"]
 [editable path="Player"]
+[editable path="Player/Hurtbox"]

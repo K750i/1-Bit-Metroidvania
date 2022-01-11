@@ -3,7 +3,7 @@ extends Node2D
 var pivot: Position2D
 
 func _ready() -> void:
-	pivot = owner.get_node("GunPivot")
+	pivot = owner.get_node(@"Sprite/GunPivot")
 	
 	
 func _process(_delta: float) -> void:
