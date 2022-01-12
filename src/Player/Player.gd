@@ -25,7 +25,7 @@ var invincible := false setget set_invincible
 
 func _ready() -> void:
 	animation_player.playback_speed = 0.6
-	player_stats.connect("player_died", self, "_on_died")
+	player_stats.connect("died", self, "_on_player_died")
 	
 	
 func _on_Hurtbox_hit(damage) -> void:
@@ -34,7 +34,7 @@ func _on_Hurtbox_hit(damage) -> void:
 		blink_player.play("blink")
 	
 	
-func _on_died() -> void:
+func _on_player_died() -> void:
 	queue_free()
 	
 	
