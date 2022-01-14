@@ -5,7 +5,7 @@ const JumpEffect: PackedScene = preload("res://src/Effects/JumpEffect.tscn")
 const PlayerBullet: PackedScene = preload("res://src/Player/PlayerBullet.tscn")
 
 export var FRICTION := 0.25
-export var GRAVITY := 800
+export var GRAVITY := 600
 export var SPEED := Vector2(100, 200)
 export var BULLET_SPEED := 250
 export var player_stats: Resource
@@ -19,6 +19,7 @@ onready var gun_muzzle: Position2D = $Sprite/PlayerGun/Muzzle
 var motion := Vector2.ZERO
 var coyote_jump_enabled := false
 var jump_pressed := false	# to allow jump when player is slightly off the ground
+var double_jump := true
 var can_fire := true
 var invincible := false setget set_invincible
 
@@ -45,7 +46,8 @@ func _physics_process(delta: float) -> void:
 	jump(input_vector)
 	play_animation(input_vector)
 	move(input_vector)
-	
+			
+			
 	if Input.is_action_pressed("fire") and can_fire:
 		fire_bullet()
 		can_fire = false
@@ -67,6 +69,7 @@ func get_input_vector() -> Vector2:
 		
 	if is_on_floor():
 		coyote_jump_enabled = true
+		double_jump = true
 		if jump_pressed:
 			out.y = -Input.get_action_strength("up")
 			
@@ -91,6 +94,14 @@ func jump(input_vector: Vector2) -> void:
 	if input_vector.y < 0.0:
 		motion.y = input_vector.y * SPEED.y
 		Utils.instance_scene_on_main(JumpEffect, position)
+
+	if not is_on_floor() and not coyote_jump_enabled:
+		if Input.is_action_just_pressed("up") and double_jump:
+			motion.y = -SPEED.y * 0.75
+			Utils.instance_scene_on_main(JumpEffect, position)
+			double_jump = false
+			print("jump")
+			
 	if Input.is_action_just_released("up") and motion.y < 0.0:
 		motion.y = 0.0
 
