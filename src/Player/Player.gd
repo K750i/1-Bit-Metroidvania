@@ -3,11 +3,13 @@ extends KinematicBody2D
 const DustEffect: PackedScene = preload("res://src/Effects/DustEffect.tscn")
 const JumpEffect: PackedScene = preload("res://src/Effects/JumpEffect.tscn")
 const PlayerBullet: PackedScene = preload("res://src/Player/PlayerBullet.tscn")
+const WallDustEffect: PackedScene = preload("res://src/Effects/WallDustEffect.tscn")
 
 export var FRICTION := 0.25
 export var GRAVITY := 600
 export var SPEED := Vector2(100, 200)
 export var BULLET_SPEED := 250
+export var SLIDE_SPEED := 2000
 export var player_stats: Resource
 
 onready var animation_player: AnimationPlayer = $SpriteAnimation
@@ -16,6 +18,9 @@ onready var sprite: Sprite = $Sprite
 onready var gun: Node2D = $Sprite/PlayerGun
 onready var gun_muzzle: Position2D = $Sprite/PlayerGun/Muzzle
 
+enum { MOVE, WALL_SLIDE }
+
+var state := MOVE
 var motion := Vector2.ZERO
 var coyote_jump_enabled := false
 var jump_pressed := false	# to allow jump when player is slightly off the ground
@@ -40,14 +45,24 @@ func _on_player_died() -> void:
 	
 	
 func _physics_process(delta: float) -> void:
-	var input_vector := get_input_vector()
-	apply_horizontal_force(input_vector)
-	apply_gravity(delta)
-	jump(input_vector)
-	play_animation(input_vector)
-	move(input_vector)
+	match state:
+		MOVE:
+			var input_vector := get_input_vector()
+			apply_horizontal_force(input_vector)
+			apply_gravity(delta)
+			jump(input_vector)
+			play_animation({input_vector = input_vector})
+			move(input_vector)
 			
-			
+			wall_slide_check()
+		WALL_SLIDE:
+			var axis := get_wall_axis()
+			wall_slide_drop_check(delta, axis)
+			wall_slide_down_check(delta)
+			wall_slide_jump_check(axis)
+			play_animation({axis = axis})
+			move(Vector2.ZERO)
+					
 	if Input.is_action_pressed("fire") and can_fire:
 		fire_bullet()
 		can_fire = false
@@ -102,8 +117,8 @@ func jump(input_vector: Vector2) -> void:
 			double_jump = false
 			print("jump")
 			
-	if Input.is_action_just_released("up") and motion.y < 0.0:
-		motion.y = 0.0
+	if Input.is_action_just_released("up") and motion.y < -80.0:
+		motion.y = -80.0
 
 
 func reset_coyote_time() -> void:
@@ -121,19 +136,24 @@ func move(input_vector: Vector2) -> void:
 	motion.y = move_and_slide_with_snap(motion, snap_vector, Vector2.UP, true, 4, PI/3).y
 	
 
-func play_animation(input_vector: Vector2) -> void:
-	sprite.scale.x = sign(get_local_mouse_position().x)
-	if input_vector.x != 0:
-		if input_vector.x * sprite.scale.x > 0:
-			animation_player.play("run")
-		else:
-			animation_player.play_backwards("run")		
-	else:
-		animation_player.play("idle")
-	
-	# overrides run & idle if in the air
-	if not is_on_floor():
-		animation_player.play("jump")
+func play_animation(params: Dictionary) -> void:
+	match state:
+		MOVE:
+			sprite.scale.x = sign(get_local_mouse_position().x)
+			if params.has('input_vector') and params['input_vector'].x != 0:
+				if params['input_vector'].x * sprite.scale.x > 0:
+					animation_player.play("run")
+				else:
+					animation_player.play_backwards("run")		
+			else:
+				animation_player.play("idle")
+			
+			# overrides run & idle if in the air
+			if not is_on_floor():
+				animation_player.play("jump")
+		WALL_SLIDE:
+			sprite.scale.x = params['axis']
+			animation_player.play("wall_slide")
 		
 
 func create_dust_effect() -> void:
@@ -155,8 +175,53 @@ func set_invincible(value: bool) -> void:
 	invincible = value
 
 
+func wall_slide_check() -> void:
+	if not is_on_floor() and is_on_wall() and (Input.is_action_pressed("left") or Input.is_action_pressed("right")):
+		state = WALL_SLIDE
+		double_jump = true
+		create_dust_effect()
+
+
+func get_wall_axis() -> int:
+	var is_right_wall := test_move(transform, Vector2.RIGHT)
+	var is_left_wall := test_move(transform, Vector2.LEFT)
+	return int(is_left_wall) - int(is_right_wall)
+
+
+func wall_slide_jump_check(wall_axis: int) -> void:
+	if Input.is_action_just_pressed("up"):
+		motion.y = -SPEED.y * .5
+		motion.x = wall_axis * SPEED.x * 5
+		var pos_offset := Vector2(3, 0) if wall_axis > 0 else Vector2(-5, 0)
+		var dust: Node = Utils.instance_scene_on_main(WallDustEffect, position + pos_offset)
+		dust.scale.x = wall_axis
+		state = MOVE
+
+
+func wall_slide_drop_check(delta: float, axis: int) -> void:
+	if Input.is_action_just_pressed("right"):
+		motion.x = SPEED.x * delta
+		motion.y = 0
+		state = MOVE
+			
+	if Input.is_action_just_pressed("left"):
+		motion.x = -SPEED.x * delta
+		motion.y = 0
+		state = MOVE
+		
+	if is_on_floor() or axis == 0:
+		state = MOVE
+	
+	
+func wall_slide_down_check(delta: float) -> void:
+	var max_slide_speed := SLIDE_SPEED
+	
+	if Input.is_action_pressed("down"):
+		max_slide_speed = SLIDE_SPEED * 3
+		
+	motion.y = max_slide_speed * delta
+	motion.x = 0
 
 
 
-
-
+	
