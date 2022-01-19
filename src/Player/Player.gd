@@ -11,6 +11,7 @@ export var SPEED := Vector2(100, 200)
 export var BULLET_SPEED := 250
 export var SLIDE_SPEED := 2000
 export var player_stats: Resource
+export var main_instances: Resource
 
 onready var animation_player: AnimationPlayer = $SpriteAnimation
 onready var blink_player: AnimationPlayer = $BlinkAnimation
@@ -32,6 +33,11 @@ var invincible := false setget set_invincible
 func _ready() -> void:
 	animation_player.playback_speed = 0.6
 	player_stats.connect("died", self, "_on_player_died")
+	main_instances.Player = self
+
+	
+func _exit_tree() -> void:
+	main_instances.Player = null
 	
 	
 func _on_Hurtbox_hit(damage) -> void:
@@ -67,7 +73,7 @@ func _physics_process(delta: float) -> void:
 		fire_bullet()
 		can_fire = false
 		reset_fire_enabled()
-		
+
 
 func get_input_vector() -> Vector2:
 	var out := Vector2.ZERO
@@ -115,7 +121,7 @@ func jump(input_vector: Vector2) -> void:
 			motion.y = -SPEED.y * 0.75
 			Utils.instance_scene_on_main(JumpEffect, position)
 			double_jump = false
-			print("jump")
+			
 			
 	if Input.is_action_just_released("up") and motion.y < -80.0:
 		motion.y = -80.0
@@ -192,7 +198,7 @@ func wall_slide_jump_check(wall_axis: int) -> void:
 	if Input.is_action_just_pressed("up"):
 		motion.y = -SPEED.y * .5
 		motion.x = wall_axis * SPEED.x * 5
-		var pos_offset := Vector2(3, 0) if wall_axis > 0 else Vector2(-5, 0)
+		var pos_offset := Vector2(3, 0) if wall_axis > 0 else Vector2(-4, 0)
 		var dust: Node = Utils.instance_scene_on_main(WallDustEffect, position + pos_offset)
 		dust.scale.x = wall_axis
 		state = MOVE
