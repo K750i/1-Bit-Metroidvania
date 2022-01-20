@@ -13,5 +13,8 @@ func _on_Hurtbox_hit(damage: int) -> void:
 
 
 func _on_EnemyStats_enemy_died() -> void:
-	Utils.instance_scene_on_main(EnemyDeathEffect, position)
 	queue_free()
+
+
+func _exit_tree() -> void:
+	Utils.instance_scene_on_main(EnemyDeathEffect, position)

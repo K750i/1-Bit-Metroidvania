@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/World/PowerUp.gd" type="Script" id=1]
+[ext_resource path="res://src/Player/PlayerStats.tres" type="Resource" id=2]
+
+[node name="PowerUp" type="Area2D"]
+collision_layer = 32
+collision_mask = 0
+script = ExtResource( 1 )
+player_stats = ExtResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]

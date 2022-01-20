@@ -5,12 +5,14 @@ var velocity := Vector2.ZERO
 
 
 # colliding with walls
-func _on_Hitbox_body_entered(_body: Node) -> void:
+# warning-ignore:unused_argument
+func _on_Hitbox_body_entered(body: Node) -> void:
 	Utils.instance_scene_on_main(Explosion, position)
 	queue_free()	
 
 
 # colliding with enemies
+# warning-ignore:unused_argument
 func _on_Hitbox_area_entered(area: Area2D) -> void:
 	Utils.instance_scene_on_main(Explosion, position)
 	queue_free()

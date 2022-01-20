@@ -3,12 +3,14 @@ extends KinematicBody2D
 const DustEffect: PackedScene = preload("res://src/Effects/DustEffect.tscn")
 const JumpEffect: PackedScene = preload("res://src/Effects/JumpEffect.tscn")
 const PlayerBullet: PackedScene = preload("res://src/Player/PlayerBullet.tscn")
+const PlayerMissile: PackedScene = preload("res://src/Player/PlayerMissile.tscn")
 const WallDustEffect: PackedScene = preload("res://src/Effects/WallDustEffect.tscn")
 
 export var FRICTION := 0.25
 export var GRAVITY := 600
 export var SPEED := Vector2(100, 200)
 export var BULLET_SPEED := 250
+export var MISSILE_SPEED := 150
 export var SLIDE_SPEED := 2000
 export var player_stats: Resource
 export var main_instances: Resource
@@ -49,6 +51,11 @@ func _on_Hurtbox_hit(damage) -> void:
 func _on_player_died() -> void:
 	queue_free()
 	
+
+func _on_PowerUpDetector_area_entered(area: Area2D) -> void:
+	if area is PowerUp:
+		area._pickup()
+	
 	
 func _physics_process(delta: float) -> void:
 	match state:
@@ -72,7 +79,15 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_pressed("fire") and can_fire:
 		fire_bullet()
 		can_fire = false
-		reset_fire_enabled()
+		reset_fire_enabled(0.25)
+	
+	# using the same timer, which means after firing missile you can't
+	# fire bullet too before that duration expires
+	if Input.is_action_just_pressed("fire_missile") and can_fire:
+		if player_stats.missiles > 0 and player_stats.missiles_unlocked:
+			fire_missile()
+			can_fire = false
+			reset_fire_enabled(1.0)
 
 
 func get_input_vector() -> Vector2:
@@ -145,7 +160,11 @@ func move(input_vector: Vector2) -> void:
 func play_animation(params: Dictionary) -> void:
 	match state:
 		MOVE:
-			sprite.scale.x = sign(get_local_mouse_position().x)
+			var facing := get_local_mouse_position().x
+			# only update scale.x if facing isn't zero
+			if facing:
+				sprite.scale.x = sign(facing)
+				
 			if params.has('input_vector') and params['input_vector'].x != 0:
 				if params['input_vector'].x * sprite.scale.x > 0:
 					animation_player.play("run")
@@ -172,8 +191,16 @@ func fire_bullet() -> void:
 	bullet.rotation = bullet.velocity.angle()
 
 
-func reset_fire_enabled() -> void:
-	yield(get_tree().create_timer(0.25), "timeout")
+func fire_missile() -> void:
+	var missile := Utils.instance_scene_on_main(PlayerMissile, gun_muzzle.global_position) as Node2D
+	missile.velocity = Vector2.RIGHT.rotated(gun.global_rotation) * MISSILE_SPEED
+	motion -= missile.velocity
+	missile.rotation = missile.velocity.angle()
+	player_stats.missiles -= 1
+	
+
+func reset_fire_enabled(duration: float) -> void:
+	yield(get_tree().create_timer(duration), "timeout")
 	can_fire = true
 
 
@@ -231,3 +258,6 @@ func wall_slide_down_check(delta: float) -> void:
 
 
 	
+
+
+
