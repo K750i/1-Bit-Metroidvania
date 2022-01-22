@@ -31,6 +31,9 @@ var double_jump := true
 var can_fire := true
 var invincible := false setget set_invincible
 
+signal hit_door(door)
+
+
 
 func _ready() -> void:
 	animation_player.playback_speed = 0.6
