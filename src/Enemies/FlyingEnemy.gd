@@ -5,6 +5,8 @@ export var main_instances: Resource
 
 onready var sprite = $Sprite
 
+var player: KinematicBody2D
+
 
 
 func _on_VisibilityNotifier2D_screen_entered() -> void:
@@ -13,15 +15,17 @@ func _on_VisibilityNotifier2D_screen_entered() -> void:
 
 func _ready() -> void:
 	set_physics_process(false)
+	player = main_instances.Player
 	
 
 func _physics_process(delta: float) -> void:
-	var player: KinematicBody2D = main_instances.Player
-	if player != null:
-		chase_player(delta, player)
+	chase_player(delta, player)
 
 
 func chase_player(delta: float, player: KinematicBody2D) -> void:
+	if not is_instance_valid(player):
+		return
+		
 	var direction: Vector2 = position.direction_to(player.position)
 	
 	motion += direction * ACCELERATION * delta
