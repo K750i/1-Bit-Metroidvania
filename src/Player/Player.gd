@@ -259,8 +259,22 @@ func wall_slide_down_check(delta: float) -> void:
 	motion.x = 0
 
 
+func save() -> Dictionary:
+	return {
+		"filename": get_filename(),
+		"parent": get_parent().get_path(),
+		"position_x": position.x,
+		"position_y": position.y,	
+	}
 
-	
-
+#TEMP
+func _process(delta: float) -> void:
+	if Input.is_action_just_pressed("save"):
+		print("save")
+		SaveAndLoad.save_game()
+		
+	if Input.is_action_just_pressed("load"):
+		print("load")
+		SaveAndLoad.load_game()
 
 

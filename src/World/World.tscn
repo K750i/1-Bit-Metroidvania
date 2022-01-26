@@ -17,7 +17,6 @@ position = Vector2( 48, 152 )
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 48, 160 )
 SPEED = Vector2( 100, 250 )
-main_instances = ExtResource( 9 )
 
 [node name="CameraFollow" parent="Player" index="4"]
 position = Vector2( 0, -8 )

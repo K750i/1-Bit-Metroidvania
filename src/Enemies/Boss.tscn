@@ -579,7 +579,7 @@ shape = SubResource( 3 )
 shape = SubResource( 4 )
 
 [node name="EnemyStats" parent="." index="5"]
-max_health = 5
+max_health = 50
 
 [node name="RightWallCheck" type="RayCast2D" parent="." index="6"]
 enabled = true
