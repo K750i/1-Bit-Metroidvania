@@ -7,6 +7,7 @@ export var player_stats: Resource
 
 
 func _ready() -> void:
+	# warning-ignore-all:return_value_discarded
 	player_stats.connect("missiles_changed", self, "_on_PlayerStats_missiles_changed")
 	player_stats.connect("missiles_unlocked", self, "_on_PlayerStats_missiles_unlocked")
 	visible = false	

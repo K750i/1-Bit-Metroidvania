@@ -1,11 +1,15 @@
 extends Node
 
+var is_loading := false
+
 const SAVE_PATH := "user://save.dat"
 
 
 func save_game() -> void:
 	var file := File.new()
+	# warning-ignore-all:return_value_discarded
 	file.open(SAVE_PATH, File.WRITE)
+	# get all nodes in the persist group within that particular level
 	var nodes := get_tree().get_nodes_in_group("persist")
 	for node in nodes:
 		var data: Dictionary = node.save()

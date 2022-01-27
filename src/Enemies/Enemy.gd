@@ -17,4 +17,5 @@ func _on_EnemyStats_enemy_died() -> void:
 
 
 func _exit_tree() -> void:
+	# warning-ignore-all:return_value_discarded
 	Utils.instance_scene_on_main(EnemyDeathEffect, position)

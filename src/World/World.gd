@@ -9,6 +9,9 @@ var current_level: Node2D
 
 func _ready() -> void:
 	VisualServer.set_default_clear_color(Color.black)
+	if SaveAndLoad.is_loading:
+		SaveAndLoad.load_game()
+		
 	main_instances.Player.connect("hit_door", self, "_on_Player_hit_door")
 
 

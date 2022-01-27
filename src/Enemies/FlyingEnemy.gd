@@ -19,10 +19,10 @@ func _ready() -> void:
 	
 
 func _physics_process(delta: float) -> void:
-	chase_player(delta, player)
+	chase_player(delta)
 
 
-func chase_player(delta: float, player: KinematicBody2D) -> void:
+func chase_player(delta: float) -> void:
 	if not is_instance_valid(player):
 		return
 		

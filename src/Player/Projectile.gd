@@ -7,6 +7,7 @@ var velocity := Vector2.ZERO
 # colliding with walls
 # warning-ignore:unused_argument
 func _on_Hitbox_body_entered(body: Node) -> void:
+	# warning-ignore-all:return_value_discarded
 	Utils.instance_scene_on_main(Explosion, position)
 	queue_free()	
 

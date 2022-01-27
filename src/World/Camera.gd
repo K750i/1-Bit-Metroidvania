@@ -1,13 +1,20 @@
 extends Camera2D
 
 export var player_stats: Resource
+export var main_instances: Resource
 
 var shake_amount := 0.0
 onready var timer: Timer = $Timer
 
 
 func _ready() -> void:
+	# warning-ignore-all:return_value_discarded
 	player_stats.connect("add_screenshake", self, "_on_PlayerStats_add_screenshake")
+	main_instances.WorldCamera = self
+
+
+func _exit_tree() -> void:
+	main_instances.WorldCamera = null
 
 
 func _on_PlayerStats_add_screenshake() -> void:
@@ -18,7 +25,7 @@ func _on_Timer_timeout() -> void:
 	shake_amount = 0.0
 	
 	
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if shake_amount:
 		offset = Vector2(
 			rand_range(-shake_amount, shake_amount),

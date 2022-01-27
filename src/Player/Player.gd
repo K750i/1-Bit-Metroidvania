@@ -20,6 +20,7 @@ onready var blink_player: AnimationPlayer = $BlinkAnimation
 onready var sprite: Sprite = $Sprite
 onready var gun: Node2D = $Sprite/PlayerGun
 onready var gun_muzzle: Position2D = $Sprite/PlayerGun/Muzzle
+onready var camera_follow: RemoteTransform2D = $CameraFollow
 
 enum { MOVE, WALL_SLIDE }
 
@@ -31,15 +32,18 @@ var double_jump := true
 var can_fire := true
 var invincible := false setget set_invincible
 
+# warning-ignore:unused_signal
 signal hit_door(door)
 
 
 
 func _ready() -> void:
 	animation_player.playback_speed = 0.6
+	# warning-ignore-all:return_value_discarded
 	player_stats.connect("died", self, "_on_player_died")
 	main_instances.Player = self
-
+	camera_follow.remote_path = main_instances.WorldCamera.get_path()
+	
 	
 func _exit_tree() -> void:
 	main_instances.Player = null
@@ -264,17 +268,9 @@ func save() -> Dictionary:
 		"filename": get_filename(),
 		"parent": get_parent().get_path(),
 		"position_x": position.x,
-		"position_y": position.y,	
+		"position_y": position.y,
 	}
 
-#TEMP
-func _process(delta: float) -> void:
-	if Input.is_action_just_pressed("save"):
-		print("save")
-		SaveAndLoad.save_game()
-		
-	if Input.is_action_just_pressed("load"):
-		print("load")
-		SaveAndLoad.load_game()
+
 
 

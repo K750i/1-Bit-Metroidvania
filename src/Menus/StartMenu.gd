@@ -6,11 +6,13 @@ func _ready() -> void:
 
 
 func _on_NewGame_pressed() -> void:
+	# warning-ignore-all:return_value_discarded
 	get_tree().change_scene("res://src/World/World.tscn")
 
 
 func _on_Continue_pressed() -> void:
-	pass # Replace with function body.
+	SaveAndLoad.is_loading = true
+	get_tree().change_scene("res://src/World/World.tscn")
 
 
 func _on_Quit_pressed() -> void:
