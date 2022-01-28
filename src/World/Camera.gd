@@ -13,10 +13,6 @@ func _ready() -> void:
 	main_instances.WorldCamera = self
 
 
-func _exit_tree() -> void:
-	main_instances.WorldCamera = null
-
-
 func _on_PlayerStats_add_screenshake() -> void:
 	shake_screen(0.5, 0.8)
 	

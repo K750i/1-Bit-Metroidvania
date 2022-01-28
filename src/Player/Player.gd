@@ -42,13 +42,10 @@ func _ready() -> void:
 	# warning-ignore-all:return_value_discarded
 	player_stats.connect("died", self, "_on_player_died")
 	main_instances.Player = self
-	camera_follow.remote_path = main_instances.WorldCamera.get_path()
+	if is_instance_valid(main_instances.WorldCamera):
+		camera_follow.remote_path = main_instances.WorldCamera.get_path()
 	
-	
-func _exit_tree() -> void:
-	main_instances.Player = null
-	
-	
+			
 func _on_Hurtbox_hit(damage) -> void:
 	if not invincible:
 		player_stats.health -= damage
